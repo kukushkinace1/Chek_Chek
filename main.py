@@ -84,6 +84,8 @@ def main():
             if count == 0:
                 blak_list.append(key)
         print(f'\n\n\nНи одной транзакции у {len(blak_list)} приватников:')
+        for add in blak_list:
+            print(add)
 
 
 if __name__ == "__main__":
