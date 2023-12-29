@@ -40,20 +40,18 @@ def main():
     max_acc = len(wallet_addresses)
     for current_account, address in enumerate(wallet_addresses):
         count = 0
-        chain_ = ''
         for chain in chains:
             w3 = Web3(Web3.HTTPProvider(random.choice(DATA[chain]['rpc'])))
             transaction_count = w3.eth.get_transaction_count(w3.to_checksum_address(address))
             if transaction_count > 0:
-                count += 1
+                count = transaction_count
                 chain_ = chain
+                print(f'[{current_account + 1}/{max_acc}]{address}: {chain_}: {count}')
 
         time.sleep(2)
 
         if count == 0:
             blak_list.append(address)
-        else:
-            print(f'[{current_account+1}]/[{max_acc}]{address}: {chain_}: {count}')
 
     print(f'\n\n\nНи одной транзакции у {len(blak_list)} кошельков:')
 
