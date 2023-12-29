@@ -7,7 +7,10 @@ import csv
 from web3 import Web3
 
 #введи сети анализа на транзакции
-chains = ['moonbeam']
+chains = ['polygon']
+
+#если True смотрит по адресам, если False по приватникам
+ADDRESSA = False
 
 # меняем рпс на свои
 DATA = {
@@ -36,27 +39,51 @@ DATA = {
 def main():
     with open('addresses.txt', 'r') as file:
         wallet_addresses = [line.strip() for line in file if line.strip()]
+    with open('keys.txt', 'r') as file:
+        keys = [line.strip() for line in file if line.strip()]
+
     blak_list = []
-    max_acc = len(wallet_addresses)
-    for current_account, address in enumerate(wallet_addresses):
-        count = 0
-        for chain in chains:
-            w3 = Web3(Web3.HTTPProvider(random.choice(DATA[chain]['rpc'])))
-            transaction_count = w3.eth.get_transaction_count(w3.to_checksum_address(address))
-            if transaction_count > 0:
-                count = transaction_count
-                chain_ = chain
-                print(f'[{current_account + 1}/{max_acc}]{address}: {chain_}: {count}')
 
-        time.sleep(2)
+    if ADDRESSA:
+        max_acc = len(wallet_addresses)
+        for current_account, address in enumerate(wallet_addresses):
+            count = 0
+            for chain in chains:
+                w3 = Web3(Web3.HTTPProvider(random.choice(DATA[chain]['rpc'])))
+                transaction_count = w3.eth.get_transaction_count(w3.to_checksum_address(address))
+                if transaction_count > 0:
+                    count = transaction_count
+                    chain_ = chain
+                    print(f'[{current_account + 1}/{max_acc}]{address}: {chain_}: {count}')
 
-        if count == 0:
-            blak_list.append(address)
+            time.sleep(2)
 
-    print(f'\n\n\nНи одной транзакции у {len(blak_list)} кошельков:')
+            if count == 0:
+                blak_list.append(address)
+        print(f'\n\n\nНи одной транзакции у {len(blak_list)} кошельков:')
 
-    for add in blak_list:
-        print(add)
+        for add in blak_list:
+            print(add)
+
+    else:
+        max_acc = len(keys)
+        for current_account, key in enumerate(keys):
+            count = 0
+            for chain in chains:
+                w3 = Web3(Web3.HTTPProvider(random.choice(DATA[chain]['rpc'])))
+                account = w3.eth.account.from_key(key)
+                address = account.address
+                transaction_count = w3.eth.get_transaction_count(w3.to_checksum_address(address))
+                if transaction_count > 0:
+                    count = transaction_count
+                    chain_ = chain
+                    print(f'[{current_account + 1}/{max_acc}]{address}: {chain_}: {count}')
+
+            time.sleep(2)
+
+            if count == 0:
+                blak_list.append(key)
+        print(f'\n\n\nНи одной транзакции у {len(blak_list)} приватников:')
 
 
 if __name__ == "__main__":
